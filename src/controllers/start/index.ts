@@ -28,6 +28,8 @@ start.enter(async (ctx: IBotContext) => {
   }
 });
 
+start.on('message', async ctx => ctx.deleteMessage());
+
 start.leave(async ctx => {
   console.log('Leaving start scene');
 

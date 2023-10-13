@@ -49,7 +49,7 @@ mongoose.connection.on('open', () => {
   bot.on('message', async ctx => {
     console.log('Default Message');
 
-    await ctx.reply('Я тебя не понял, пожалуйста выбери одну из команд ниже.', getMainKeyboard());
+    await ctx.deleteMessage();
   });
 
   process.once('SIGINT', () => bot.stop('SIGINT'));

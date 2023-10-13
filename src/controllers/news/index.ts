@@ -5,18 +5,31 @@ import News from '../../models/News';
 import { IBotContext } from '../../../types/interfaces/IBotContext';
 import { getMainKeyboard } from '../../utils/keyboard';
 import { Message } from 'telegraf/typings/core/types/typegram';
+import User from '../../models/User';
+import { getReturnKeyboard } from './helpers';
 
 const news = new Scenes.BaseScene<any>(ScenesNames.NEWS_SCENE);
 
 news.enter(async (ctx: IBotContext) => {
-  await ctx.editMessageText('Отлично! Напишите свою новость текстом или пришлите видео/картинки');
+  await ctx.editMessageText(
+    'Отлично! Напишите свою новость текстом или пришлите видео/картинки',
+    getReturnKeyboard(),
+  );
+});
+
+news.action('return', async ctx => {
+  await ctx.deleteMessage();
+  await ctx.scene.leave();
 });
 
 news.on('text', async ctx => {
   const now = new Date().getTime();
 
+  const user = await User.findById(ctx.from.id);
+
   const newNews = new News({
     _id: ctx.message.message_id,
+    user,
     created: now,
     text: (ctx.message as Message.TextMessage).text,
     fileId: null,
@@ -33,13 +46,14 @@ news.on('text', async ctx => {
 news.on('photo', async ctx => {
   const now = new Date().getTime();
 
-  console.log(ctx.message);
-
   const fileId = ctx.message.photo.pop()!.file_id;
   const fileLink = await ctx.telegram.getFileLink(fileId);
 
+  const user = await User.findById(ctx.from.id);
+
   const newNews = new News({
     _id: ctx.message.message_id,
+    user,
     created: now,
     text: ctx.message.caption,
     fileId,
@@ -59,8 +73,11 @@ news.on('video', async ctx => {
   const fileId = ctx.message.video.file_id;
   const fileLink = await ctx.telegram.getFileLink(fileId);
 
+  const user = await User.findById(ctx.from.id);
+
   const newNews = new News({
     _id: ctx.message.message_id,
+    user,
     created: now,
     text: ctx.message.caption,
     fileId,

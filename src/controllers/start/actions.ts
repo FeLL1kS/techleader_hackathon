@@ -8,13 +8,11 @@ export const saveUserToDb = async (ctx): Promise<void> => {
 
   const newUser = new User({
     _id: uid,
+    chatId: ctx.chat.id,
     created: now,
-    username: ctx.from!.username,
-    name: ctx.from!.first_name + ' ' + (ctx.from!.last_name || ''),
-    observableMovies: [],
+    username: ctx.from.username,
+    name: ctx.from.first_name + ' ' + (ctx.from!.last_name || ''),
     lastActivity: now,
-    totalMovies: 0,
-    language: 'en',
   });
 
   await newUser.save();

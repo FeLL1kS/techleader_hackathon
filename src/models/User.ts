@@ -1,4 +1,5 @@
 import mongoose, { Document } from 'mongoose';
+import { INews } from './News';
 
 export interface IUser extends Document {
   _id: string;
@@ -6,19 +7,28 @@ export interface IUser extends Document {
   username: string;
   name: string;
   lastActivity: number;
+  news: INews[];
 }
 
 export const UserSchema = new mongoose.Schema(
   {
     _id: String,
+    chatId: String,
     created: Number,
     username: String,
     name: String,
     lastActivity: Number,
+    news: [{ type: String, ref: 'News' }],
   },
   { _id: false },
 );
 
-const User = mongoose.model<IUser>('User', UserSchema);
+UserSchema.pre('find', function () {
+  this.populate('news');
+}).pre('findOne', function () {
+  this.populate('news');
+});
+
+const User = mongoose.model('User', UserSchema);
 
 export default User;
