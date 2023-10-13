@@ -19,8 +19,9 @@ news.on('text', async ctx => {
     _id: ctx.message.message_id,
     created: now,
     text: (ctx.message as Message.TextMessage).text,
-    // eslint-disable-next-line camelcase
-    file_id: null,
+    fileId: null,
+    fileLink: null,
+    type: 'text',
   });
 
   await newNews.save();
@@ -34,13 +35,16 @@ news.on('photo', async ctx => {
 
   console.log(ctx.message);
 
-  const fileLink = await ctx.telegram.getFileLink(ctx.message.photo.pop()!.file_id);
+  const fileId = ctx.message.photo.pop()!.file_id;
+  const fileLink = await ctx.telegram.getFileLink(fileId);
 
   const newNews = new News({
     _id: ctx.message.message_id,
     created: now,
     text: ctx.message.caption,
+    fileId,
     fileLink,
+    type: 'photo',
   });
 
   await newNews.save();
@@ -51,13 +55,17 @@ news.on('photo', async ctx => {
 
 news.on('video', async ctx => {
   const now = new Date().getTime();
-  const fileLink = await ctx.telegram.getFileLink(ctx.message.video.file_id);
+
+  const fileId = ctx.message.video.file_id;
+  const fileLink = await ctx.telegram.getFileLink(fileId);
 
   const newNews = new News({
     _id: ctx.message.message_id,
     created: now,
     text: ctx.message.caption,
+    fileId,
     fileLink,
+    type: 'video',
   });
 
   await newNews.save();

@@ -6,6 +6,7 @@ import { Scenes, Telegraf, session } from 'telegraf';
 import startScene from './controllers/start';
 import aboutScene from './controllers/about';
 import newsScene from './controllers/news';
+import adminScene from './controllers/admin';
 import { IBotContext } from 'types/interfaces/IBotContext';
 import { ScenesNames } from '../types/enums/ScenesNames.enum';
 import mongoose from 'mongoose';
@@ -22,7 +23,7 @@ mongoose.connection.on('error', err => {
 mongoose.connection.on('open', () => {
   const bot = new Telegraf<IBotContext>(process.env.BOT_TOKEN!);
 
-  const stages = new Scenes.Stage<any>([startScene, aboutScene, newsScene]);
+  const stages = new Scenes.Stage<any>([startScene, aboutScene, newsScene, adminScene]);
 
   bot.use(session());
   bot.use(stages.middleware());
@@ -40,6 +41,8 @@ mongoose.connection.on('open', () => {
       mainKeyboard,
     );
   });
+
+  bot.command('admin', async (ctx: IBotContext) => ctx.scene.enter(ScenesNames.ADMIN_SCENE));
 
   bot.launch();
 
