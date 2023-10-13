@@ -5,6 +5,7 @@ dotenv.config();
 import { Scenes, Telegraf, session } from 'telegraf';
 import startScene from './controllers/start';
 import aboutScene from './controllers/about';
+import newsScene from './controllers/news';
 import { IBotContext } from 'types/interfaces/IBotContext';
 import { ScenesNames } from '../types/enums/ScenesNames.enum';
 import mongoose from 'mongoose';
@@ -21,7 +22,7 @@ mongoose.connection.on('error', err => {
 mongoose.connection.on('open', () => {
   const bot = new Telegraf<IBotContext>(process.env.BOT_TOKEN!);
 
-  const stages = new Scenes.Stage<any>([startScene, aboutScene]);
+  const stages = new Scenes.Stage<any>([startScene, aboutScene, newsScene]);
 
   bot.use(session());
   bot.use(stages.middleware());
@@ -29,6 +30,7 @@ mongoose.connection.on('open', () => {
   bot.start(async ctx => ctx.scene.enter(ScenesNames.START_SCENE));
 
   bot.action('about', async ctx => ctx.scene.enter(ScenesNames.ABOUT_ME_SCENE));
+  bot.action('news', async ctx => ctx.scene.enter(ScenesNames.NEWS_SCENE));
 
   bot.command('saveme', async (ctx: IBotContext) => {
     const mainKeyboard = getMainKeyboard();
