@@ -116,16 +116,6 @@ module.exports = {
     'arrow-body-style': 'error',
     'arrow-parens': ['error', 'as-needed'],
     camelcase: 'error',
-    'comma-dangle': [
-      'error',
-      {
-        arrays: 'always-multiline',
-        objects: 'always-multiline',
-        imports: 'always-multiline',
-        exports: 'always-multiline',
-        functions: 'never',
-      },
-    ],
     complexity: 'off',
     'constructor-super': 'error',
     curly: 'error',
