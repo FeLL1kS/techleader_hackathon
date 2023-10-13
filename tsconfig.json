@@ -21,7 +21,7 @@
       "node"
     ],
     "resolveJsonModule": true,
-    "baseUrl": ".",
+    "baseUrl": "."
   },
   "exclude": ["node_modules", "build"],
   "include": ["./src/**/*", "./types/**/*", "*.ts"]
