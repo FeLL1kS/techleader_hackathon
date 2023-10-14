@@ -15,4 +15,13 @@ export const getRatingKeyboard = (userId: string, newsId: string) => [
 ];
 
 export const getReturnKeyboard = () =>
-  Markup.inlineKeyboard([Markup.button.callback('Обратно', 'return', false)]);
+  Markup.inlineKeyboard([Markup.button.callback('Обратно', 'return')]);
+
+export const getAdminKeyboard = () =>
+  Markup.inlineKeyboard([
+    [
+      Markup.button.callback('Поиск новостей за период', 'search'),
+      Markup.button.callback('Все одобренные новости', 'getApproved'),
+    ],
+    [Markup.button.callback('Обратно', 'return')],
+  ]);
