@@ -1,10 +1,9 @@
 import { Scenes } from 'telegraf';
 import { ScenesNames } from '../../../types/enums/ScenesNames.enum';
 import { IBotContext } from '../../../types/interfaces/IBotContext';
-import { Message } from 'telegraf/typings/core/types/typegram';
 import News from '../../models/News';
 import { getMainKeyboard } from '../../utils/keyboard';
-import { getAdminKeyboard, getApproveKeyboard } from './helpers';
+import { getAdminKeyboard, getApproveKeyboard, getReturnKeyboard } from './helpers';
 import { approveAction, getApprovedNewsAction, rateAction, returnAction } from './actions';
 
 const admin = new Scenes.BaseScene<any>(ScenesNames.ADMIN_SCENE);
@@ -12,10 +11,17 @@ const admin = new Scenes.BaseScene<any>(ScenesNames.ADMIN_SCENE);
 admin.enter(async (ctx: IBotContext) => {
   await ctx.reply(
     // eslint-disable-next-line max-len
-    'Добро пожаловать в панель администратора! Чтобы получить присланные новости введите даты в формате ГГГГ.ММ.ДД-ГГГГ.ММ.ДД',
+    'Добро пожаловать в панель администратора!',
     getAdminKeyboard(),
   );
 });
+
+admin.action('search', async ctx =>
+  ctx.reply(
+    'Чтобы получить присланные новости введите даты в формате ГГГГ.ММ.ДД-ГГГГ.ММ.ДД',
+    getReturnKeyboard(),
+  ),
+);
 
 admin.action('getApproved', getApprovedNewsAction);
 
@@ -29,20 +35,9 @@ admin.command('saveme', async ctx => {
   await ctx.scene.leave();
 });
 
-admin.on('message', async ctx => {
-  const regex = new RegExp(/\d{4}\.\d{2}\.\d{2}-\d{4}\.\d{2}\.\d{2}/g);
-
-  const text = (ctx.message as Message.TextMessage).text;
-
-  if (!regex.exec(text)) {
-    await ctx.reply(
-      'Неверный формат даты. введите даты в формате ГГГГ.ММ.ДД-ГГГГ.ММ.ДД. Чтобы выйти на главную напишите /saveme',
-    );
-
-    return;
-  }
-
-  const [startDate, endDate] = text.split('-');
+admin.hears(/(\d{4}\.\d{2}\.\d{2})-(\d{4}\.\d{2}\.\d{2})/g, async ctx => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_, startDate, endDate] = ctx.match;
 
   const startDateMs = new Date(startDate).getTime();
   const endDateMs = new Date(endDate).getTime();
@@ -53,7 +48,8 @@ admin.on('message', async ctx => {
   });
 
   if (!news.length) {
-    ctx.reply(`Новостей за промежуток ${text} нет`);
+    await ctx.reply(`Новостей за промежуток ${startDate} - ${endDate} нет`);
+    await ctx.scene.leave();
 
     return;
   }
@@ -81,6 +77,15 @@ admin.on('message', async ctx => {
           break;
       }
     }),
+  );
+
+  await ctx.scene.leave();
+});
+
+admin.on('message', async ctx => {
+  await ctx.reply(
+    'Неверный формат даты. введите даты в формате ГГГГ.ММ.ДД-ГГГГ.ММ.ДД.',
+    getReturnKeyboard(),
   );
 });
 
